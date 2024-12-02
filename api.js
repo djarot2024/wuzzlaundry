@@ -3,7 +3,7 @@
 
 // const loadData = async () => {
 //     try {
-//         const response = await fetch('http://apklaundry.test/api/cucianku');
+//         const response = await fetch('http://wuzz-laundry.infinityfreeapp.com/api/cucianku');
 //         const result = await response.json();
 
 //         usersData = Array.isArray(result.data) ? result.data : [result.data];
@@ -43,7 +43,7 @@ const notaInput = document.getElementById('nota');
 
 const loadDataByNota = async (nota) => {
     try {
-        const response = await fetch(`http://apklaundry.test/api/cucianku/${nota}`);
+        const response = await fetch(`http://wuzz-laundry.infinityfreeapp.com/api/cucianku/${nota}`);
         if (!response.ok) {
             throw new Error('Data tidak ditemukan');
         }
