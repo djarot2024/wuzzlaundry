@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tracking Cucian</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css">
+    <script src="https://cdn.tailwindcss.com">
+    </script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&amp;display=swap" rel="stylesheet"/>
+    <style>
+        .detail-container {
+            max-width: 600px;
+            margin: 50px auto;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            background-color: #fff;
+        }
+        .detail-header {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+        .detail-item span {
+            font-weight: bold;
+            color: #555;
+        }
+        #no-data {
+            text-align: center;
+            color: #888;
+            font-style: italic;
+        }
+        .status-in-progress {
+            padding: 5px 10px;
+            border-radius: 5px;
+            color: #fff;
+            font-weight: bold;
+            background-color: yellow;
+        }
+        .status-completed {
+            padding: 5px 10px;
+            border-radius: 5px;
+            color: #fff;
+            font-weight: bold;
+            background-color: green;
+        }
+    </style>
+</head>
+<body class="bg-blue-500">
+    <div class="bg-blue-400 p-4">
+        <nav class="flex justify-center space-x-8">
+         <a class="text-black" href="tampilan home.html">
+          Beranda
+         </a>
+         <a class="text-black" href="status.html">
+          Status Cucian
+         </a>
+         <a class="text-black" href="Tentang laundry.html">
+          Tentang Kami
+         </a>
+         <a class="text-black" href="layanan.html">
+          Layanan
+         </a>
+         <a class="text-black" href="harga.html">
+             Pricelist
+         </a>
+        </nav>
+       </div>
+    <div class="container mt-5">
+        <div class="detail-container">
+            <div class="detail-header">Tracking Cucian</div>
+            <div class="mb-3">
+                <label for="notaInput" class="form-label">Masukkan Nota:</label>
+                <input type="text" id="notaInput" class="form-control" placeholder="Contoh: 12345">
+            </div>
+            <button id="trackButton" class="btn btn-primary w-100 mb-3">Track Cucian</button>
+            <div id="detail-data">
+                <p id="no-data">Masukkan nomor nota untuk melacak cucian Anda.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const detailData = document.getElementById('detail-data');
+        const notaInput = document.getElementById('notaInput');
+        const trackButton = document.getElementById('trackButton');
+
+        // Fungsi untuk mendapatkan data berdasarkan nota
+        const fetchCucianData = async () => {
+            const nota = notaInput.value.trim();
+
+            if (!nota) {
+                alert('Harap masukkan nomor nota!');
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://apklaundry.test/api/cucianku/${nota}`);
+                const result = await response.json();
+
+                if (result.response.status === 200) {
+                    const data = result.data;
+                    renderDetail(data);
+                } else {
+                    renderNoData(result.response.message || 'Cucian tidak ditemukan');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Terjadi kesalahan dalam mengambil data.');
+            }
+        };
+
+        // Fungsi untuk menampilkan detail data
+        const renderDetail = (data) => {
+            // Menentukan kelas berdasarkan status cucian
+            let statusClass = '';
+            if (data.status === 'sedang dicuci') {
+                statusClass = 'status-in-progress';  // Kuning
+            } else if (data.status === 'selesai') {
+                statusClass = 'status-completed';    // Hijau
+            }
+
+            detailData.innerHTML = `
+                <div class="detail-item"><span>Nama:</span> ${data.nama || '-'}</div>
+                <div class="detail-item"><span>Barang:</span> ${data.barang || '-'}</div>
+                <div class="detail-item"><span>Jumlah Kilo:</span> ${data.jumlah_kilo || '-'}</div>
+                <div class="detail-item"><span>Kategori:</span> ${data.kategory || '-'}</div>
+                <div class="detail-item"><span>Jenis:</span> ${data.jenis || '-'}</div>
+                <div class="detail-item"><span>Pelayanan:</span> ${data.pelayanan || '-'}</div>
+                <div class="detail-item"><span>Harga:</span> Rp ${data.harga || '-'}</div>
+                <div class="detail-item"><span>Status:</span> <span class="${statusClass}">${data.status || '-'}</span></div>
+                <div class="detail-item"><span>Tanggal Masuk:</span> ${data.tanggal_masuk || '-'}</div>
+                <div class="detail-item"><span>Tanggal Keluar:</span> ${data.tanggal_keluar || '-'}</div>
+                <div class="detail-item"><span>Status Pembayaran:</span> ${data.status_pembayaran || '-'}</div>
+                <div class="detail-item"><span>Nota:</span> ${data.nota || '-'}</div>
+            `;
+        };
+
+        // Fungsi untuk menampilkan pesan jika data tidak ditemukan
+        const renderNoData = (message) => {
+            detailData.innerHTML = `<p id="no-data">${message}</p>`;
+        };
+
+        // Event listener untuk tombol track
+        trackButton.addEventListener('click', fetchCucianData);
+    </script>
+</body>
+</html>
