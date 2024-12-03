@@ -108,7 +108,7 @@
             }
 
             try {
-                const response = await fetch(`https://wuzz-laundry.infinityfreeapp.com/api/cucianku/${nota}`);
+                const response = await fetch(`http://wuzzlaundry.com/api/cucianku/${nota}`);
                 const result = await response.json();
 
                 if (result.response.status === 200) {
